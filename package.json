@@ -1,0 +1,32 @@
+{
+  "name": "chigui-API",
+  "version": "0.0.1",
+  "private": true,
+  "description": "API for SiB Colombia Catalogue of Species",
+  "keywords": ["species", "catalogue"],
+  "main": "index.js",
+  "scripts": {
+    "start": "./node_modules/.bin/nodemon -e js index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Oscar Duque",
+  "license": "MIT",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.12.3",
+    "swagger-express-mw": "^0.1.0",
+    "mongoose": "^4.8.1",
+    "mongoose-schema-extend": "^0.2.0",
+    "async" : "latest",
+    "winston": "^2.2.0",
+    "babel": "^6.5.2"
+  },
+  "devDependencies": {
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "swagger project test"
+  }
+}
