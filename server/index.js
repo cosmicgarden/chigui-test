@@ -11,6 +11,7 @@ import SwaggerExpress from 'swagger-express-mw';
 import swaggerUiMiddleware from 'swagger-ui-middleware';
 import mongoose from 'mongoose';
 
+
 const app = express();
 const swaggerConfig = {
   appRoot: `${__dirname}/..`

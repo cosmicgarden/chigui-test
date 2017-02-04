@@ -1,11 +1,27 @@
 swagger: "2.0"
 info:
-  version: "0.0.1"
-  title: Hello World App
+  version: "1.5"
+  title: SiB Colombia - Catalogue API
+  description: API for SiB Colombia Catalogue. This API is used as a backend for consult the information of the species records reported in the SiB Colombia.
+  contact:
+    name: SiB Colombia Developer Team
+    url: http://www.sibcolombia.net
+    email: oduque@humboldt.org.co
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
 # during dev, should point to your local machine
-host: localhost:10010
+#host: localhost:10010
+host: localhost:8000
 # basePath prefixes all resource paths 
-basePath: /
+basePath: /api/v1.5
+tags:
+  - name: record
+    description: This API works against the SiB Colombia Records data store, which store all species records registered through Mamut editor.
+  - name: taxonRecordName
+    description: A operation related with the element TaxonRecordName
+  - name: AssociatedParty
+    description: A operation related with the element AssociatedParty
 # 
 schemes:
   # tip: remove http to make production-grade
@@ -18,6 +34,243 @@ consumes:
 produces:
   - application/json
 paths:
+  /list/:
+    x-swagger-router-controller: records
+    get:
+      description: get a list of records
+      tags:
+        - record
+      operationId: getRecordList
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/Record"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /records/{id}:
+    x-swagger-router-controller: records
+    get:
+      description: get the latest version of a record
+      tags:
+        - record
+      operationId: lastRecord
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/Record"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /records:
+    x-swagger-router-controller: taxonRecordName
+    post:
+      description: Creates a new  Record with a taxonRecordNameVersion, that is the fisrt element and version of the created record.
+      tags:
+        - record
+      operationId: postRecord
+      parameters:
+        - name: taxonRecordNameVersion
+          description: taxonRecordNameVersion object
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TaxonRecordNameVersion'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ResultResponse"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /records/{id}/taxon_record_name/{version}:
+    x-swagger-router-controller: taxonRecordName
+    get: 
+      description: Returns a taxonRecordNameVersion by Record id and number of version
+      tags:
+        - taxonRecordName
+      operationId: getTaxonRecordName
+      parameters:
+        - name: id
+          type: string
+          description: "ID of the record(ficha)"
+          in: path
+          required: true
+        - name: version
+          type: integer
+          description: "Version of the element"
+          minimum: 1
+          in: path
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TaxonRecordNameVersion"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+            
+  /records/to_review/{id}/taxon_record_name:
+    x-swagger-router-controller: taxonRecordName
+    get: 
+      description: Returns a list of TaxonRecordNameVersion with state "to_review"
+      tags:
+        - taxonRecordName
+      operationId: getToReviewTaxonRecordName
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TaxonRecordNameVersionList"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+            
+  /records/accepted/{id}/taxon_record_name:
+    x-swagger-router-controller: taxonRecordName
+    get: 
+      description: Returns the taxonRecordNameVersion accepted 
+      tags:
+        - taxonRecordName
+      operationId: getLastAcceptedTaxonRecordName
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/TaxonRecordNameVersion"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /records/accepted/{id}/taxon_record_name/{version}:
+    x-swagger-router-controller: taxonRecordName
+    put: 
+      description: Update a TaxonRecordNameVersion state to accepted
+      tags:
+        - taxonRecordName
+      operationId: setAcceptedTaxonRecordName
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+        - name: version
+          type: integer
+          in: path
+          required: true
+        
+      responses:
+        "200":
+          description: Success
+          
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+      
+  /records/{id}/taxon_record_name:
+    x-swagger-router-controller: taxonRecordName
+    post:
+      description: Save a new taxonRecordNameVersion related with the a record with the id
+      tags:
+        - taxonRecordName
+      operationId: postTaxonRecordName
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+        - name: taxonRecordNameVersion
+          description: taxonRecordNameVersion object
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TaxonRecordNameVersion'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ResultResponse"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+            
+  /records/test/{id}/taxon_record_name:
+    x-swagger-router-controller: taxonRecordName
+    post:
+      description: Save a new taxonRecordNameVersion related with the record with the id
+      tags:
+        - taxonRecordName
+      operationId: postTestTaxonRecordName
+      parameters:
+        - name: id
+          type: string
+          in: path
+          required: true
+        - name: taxonRecordNameVersion
+          description: taxonRecordNameVersion object
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/TaxonRecordNameVersion'
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ResultResponse"
+        # responses may fall through to errors
+        "400":
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  
   /hello:
     # binds a127 app logic to a route
     x-swagger-router-controller: hello_world
@@ -46,6 +299,429 @@ paths:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
+  Record:
+    required:
+      - -id
+    properties:
+      -id:
+        type: string
+      taxonRecordName:
+        $ref: '#/definitions/TaxonRecordName' 
+        
+        
+  TaxonRecordNameVersionList:
+    properties:
+      taxonRecordNameList:
+        type: array
+        items:
+          $ref: '#/definitions/TaxonRecordNameVersion'
+
+  TaxonRecordNameVersion:
+    required:
+      - taxonRecordName
+      - id_user
+    properties:
+      _id:
+        type: string
+      id_record: 
+        type: string
+      created: 
+        type: string #****
+        #pattern: '^(\d{4}-\d{2}-\d{2})$'
+        #pattern: '^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$'
+      id_user:
+        type: string
+      version:
+        type: integer
+      state:
+        type: string
+      element:
+        type: string
+      taxonRecordName:
+        $ref: '#/definitions/TaxonRecordName'
+        
+  TaxonRecordName:
+    properties:
+      ancillaryData:
+        type: array
+        items:
+          $ref: '#/definitions/AncillaryData'
+      scientificName:
+        $ref: '#/definitions/ScientificName'
+        
+  TypeVoucherEntity:
+    properties:
+      voucherReference:
+        type: array
+        items:
+          type: string
+      lectotypePublicationVoucher:
+        type: array
+        items:
+          type: string
+      lectotypeMicroReferenceVoucher:
+        type: array
+        items:
+          type: string
+      typeOfType:
+        type: string
+        
+  Genus:
+    properties:
+      ref:
+        type: string
+      linkType:
+        type: string
+        
+  TypeNameEntity:
+    properties:
+      nameReference: 
+        $ref: '#/definitions/NameReference'
+        
+  ProviderSpecificData:
+    properties:
+      anyOne:
+        type: array
+        items:
+          type: string
+      anyTwo:
+        type: string
+        
+  RelatedNamePublished: 
+    properties:
+      identifier:
+        type: string
+      datatype:
+        type: string
+      source: 
+        type: string
+        
+  BasionymAuthorship:
+    properties:
+      simple:
+        type: string
+      year:
+        type: array
+        items:
+          type: string
+      authors:
+        type: array
+        items:
+          type: string
+      combinationAuthorship:
+        type: array
+        items:
+          type: string
+          
+  Authorship:
+    properties:
+      simple:
+        type: string
+      authors:
+        type: array
+        items:
+          type: string
+          
+  NameReference:
+    properties:
+      identifier:
+        type: string
+      datatype:
+        type: string
+      source:
+        type: string
+          
+  Epithet:
+    properties:
+      infragenericEpithe:
+        type: string
+      specificEpithet:
+        type: string
+      infraspecificEpithet:
+        type: string
+        
+  Attributes:
+    properties:
+      id:
+        type: integer
+      isAnamorphic:
+        type: boolean
+      nomenclaturalCode:
+        type: string
+        
+  CanonicalName:
+    properties:
+      simple:
+        type: string
+      uninomial:
+        type: string
+      genus:
+        $ref: '#/definitions/Genus' 
+      epithet:
+        $ref: '#/definitions/Epithet'
+        
+  CanonicalAuthorship:
+    properties:
+      simple:
+        type: string
+      authorship:
+        $ref: '#/definitions/Authorship'
+        
+  Typificacion: 
+    properties:
+      simple: 
+        type: string
+      typeVoucherEntity:
+        $ref: '#/definitions/TypeVoucherEntity' 
+        
+  Publishedln:
+    properties:
+      identifier:
+        type: string
+      datatype:
+        type: string
+      source:
+        type: string
+        
+  SpecialAuthorship:
+    properties:
+      basionymAuthorship :
+        $ref: '#/definitions/BasionymAuthorship'
+        
+  ScientificNameAux:
+    properties:
+      ruleConsidered:
+        type: string
+      note:
+        type: string
+      relatedName:
+        $ref: '#/definitions/RelatedNamePublished'
+      publishedln:
+        $ref: '#/definitions/RelatedNamePublished'
+      microReference:
+        type: string
+        
+  ScientificName: 
+    properties:
+      ancillaryData:
+        type: array
+        items:
+          $ref: '#/definitions/AncillaryData'
+      attributes:
+        $ref: '#/definitions/Attributes' 
+      simple:
+        type: string
+      rank:
+        type: string
+      canonicalName: 
+        $ref: '#/definitions/CanonicalName' 
+      canonicalAuthorship:
+        $ref: '#/definitions/CanonicalAuthorship'
+      specialAuthorship:
+        $ref: '#/definitions/SpecialAuthorship' 
+      publishedln:
+        $ref: '#/definitions/Publishedln'
+      year:
+        type: string
+      microReference:
+        type: string
+      typificacion:
+        $ref: '#/definitions/Typificacion' 
+      typeNameEntity:
+        $ref: '#/definitions/TypeNameEntity' 
+      spellingCorrentionOf:
+        type: array
+        items:
+          type: string
+      basionym:
+        $ref: '#/definitions/ScientificNameAux' 
+      basedOn:
+        $ref: '#/definitions/ScientificNameAux' 
+      conservedAgainst :
+        type: array
+        items:
+          type: string
+      laterHomonymOf:
+        $ref: '#/definitions/ScientificNameAux' 
+      sanctioned:
+        $ref: '#/definitions/ScientificNameAux' 
+      replacementNameFor:
+        $ref: '#/definitions/ScientificNameAux' 
+      publicationStatus:
+        $ref: '#/definitions/ScientificNameAux' 
+      providerLink:
+        type: string
+      providerSpecificData:
+        $ref: '#/definitions/ProviderSpecificData'
+        
+  Agent:
+    properties:
+      firstName: 
+        type: string
+      lastName:
+        type: string
+      organisation:
+        type: string
+      position:
+        type: string
+      address:
+        type: string
+      city:
+        type: string
+      state:
+        type: string
+      country: 
+        type: string
+      postalCode:
+        type: string
+      phone:
+        type: string
+      email:
+        type: string
+      homepage:
+        type: string
+      personnelDirectory:
+        type: string
+      personnelIdentifier :
+        type: string
+        
+  Reference:
+    properties:
+      profile_id:
+        type: string
+      group_id:
+        type: string
+      created:
+        type: string
+        #pattern: '^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$'
+      last_modified:
+        type: string
+        #pattern: '^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$'
+      identifiers:
+        type: array
+        items:
+          type: string
+      abstract:
+        type: string
+      type:
+        type: string
+      source: 
+        type: string
+      title:
+        type: string
+      authors:
+        type: array
+        items:
+          type: string
+      year:
+        type: string
+      volume: 
+        type: string
+      issue:
+        type: string
+      pages:
+        type: string
+      series:
+        type: string
+      chapter: 
+        type: string
+      websites:
+        type: string
+      accessed:
+        type: string
+      publisher:
+        type: string
+      address:
+        type: string
+      city:
+        type: string
+      edition:
+        type: string
+      institution:
+        type: string
+      editors:
+        type: array
+        items:
+          type: string
+      keywords:
+        type: array
+        items:
+          type: string
+      doi:
+        type: string
+      isbn:
+        type: string
+      issn:
+        type: string
+      link:
+        type: string
+      recordId:
+        type: string
+        
+  AncillaryData:
+    properties:
+      dataType:
+        type: string 
+      mimeType:
+        type: string
+      agent:
+        type: array
+        items:
+          $ref: '#/definitions/Agent' 
+      created:
+        type: string
+        #pattern: '^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$'
+      modified:
+        type: string
+        #pattern: '^\d{4}(-\d\d(-\d\d(T\d\d:\d\d(:\d\d)?(\.\d+)?(([+-]\d\d:\d\d)|Z)?)?)?)?$'
+      title:
+        type: string
+      license:
+        type: string
+      rights:
+        type: string
+      rightsHolder:
+        type: string
+      bibliographicCitation:
+        type: string
+      audience:
+        type: array
+        items:
+          type: string
+      source :
+        type: string
+      subject:
+        type: array
+        items:
+          type: string
+      description:
+        type: string
+      mediaURL:
+        type: array
+        items:
+          type: string
+      thumbnailURL:
+        type: string
+      location:
+        type: string
+      geoPoint:
+        type: string
+      additionalInformation:
+        type: string
+      dataObject:
+        type: string
+      reference: 
+        type: array
+        items:
+          $ref: '#/definitions/Reference'
+          
+  ResultResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string
+        
   HelloWorldResponse:
     required:
       - message
